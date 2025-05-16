@@ -1,0 +1,21 @@
+on:
+  workflow_call:
+    inputs:
+      region:
+        required: true
+        type: string
+      account_id:
+        required: true
+        type: string
+
+jobs:
+  associate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: |
+          aws cloudformation deploy \
+            --region ${{ inputs.region }} \
+            --template-file modules/account-association/template.yaml \
+            --stack-name datazone-account-association \
+            --parameter-overrides AccountId=${{ inputs.account_id }}
