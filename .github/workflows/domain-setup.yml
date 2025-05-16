@@ -1,0 +1,20 @@
+on:
+  workflow_call:
+    inputs:
+      region:
+        required: true
+        type: string
+      domain_name:
+        required: true
+        type: string
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: hashicorp/setup-terraform@v2
+      - run: |
+          cd modules/domain-setup
+          terraform init
+          terraform apply -auto-approve -var="region=${{ inputs.region }}" -var="domain_name=${{ inputs.domain_name }}"
