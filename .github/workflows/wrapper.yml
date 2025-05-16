@@ -1,0 +1,53 @@
+name: DataZone IaC Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      region:
+        required: true
+        default: 'us-east-1'
+      domain_name:
+        required: true
+      sso_group:
+        required: true
+      auth_policy:
+        required: true
+      account_id:
+        required: true
+      git_repo_url:
+        required: true
+
+jobs:
+  domain:
+    uses: ./.github/workflows/domain-setup.yml
+    with:
+      region: ${{ inputs.region }}
+      domain_name: ${{ inputs.domain_name }}
+
+  sso:
+    needs: domain
+    uses: ./.github/workflows/sso-user-group.yml
+    with:
+      region: ${{ inputs.region }}
+      group_name: ${{ inputs.sso_group }}
+
+  auth:
+    needs: sso
+    uses: ./.github/workflows/authorization-policy.yml
+    with:
+      region: ${{ inputs.region }}
+      policy_name: ${{ inputs.auth_policy }}
+
+  account:
+    needs: auth
+    uses: ./.github/workflows/account-association.yml
+    with:
+      region: ${{ inputs.region }}
+      account_id: ${{ inputs.account_id }}
+
+  git:
+    needs: account
+    uses: ./.github/workflows/git-integration.yml
+    with:
+      region: ${{ inputs.region }}
+      repo_url: ${{ inputs.git_repo_url }}
