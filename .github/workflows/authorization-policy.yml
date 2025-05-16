@@ -1,0 +1,28 @@
+name: Deploy Authorization Policy
+
+on:
+  workflow_call:
+    inputs:
+      region:
+        required: true
+        type: string
+      policy_name:
+        required: true
+        type: string
+
+jobs:
+  deploy-auth-policy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Deploy Authorization Policy
+        run: |
+          cd modules/authorization-policy
+          terraform init
+          terraform apply -auto-approve \
+            -var="region=${{ inputs.region }}" \
+            -var="policy_name=${{ inputs.policy_name }}"
